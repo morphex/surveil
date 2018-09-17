@@ -42,6 +42,8 @@ def test_dependencies():
         global DNS
         import DNS
     except ImportError:
+        print("Missing python3-dns")
+        print('Running "sudo apt install python3-dns"')
         os.system("sudo apt install python3-dns")
         global DNS
         import DNS
@@ -128,7 +130,7 @@ def setup_video():
     if len(valid_files) >= VIDEO_IMAGES:
         valid_files.reverse()
         global _INDEX_VIDEO
-        video_dir = 'video%04i' % _INDEX_VIDEO
+        video_dir = 'video%06i' % _INDEX_VIDEO
         _INDEX_VIDEO += 1
         os.mkdir(video_dir)
         count = 1
@@ -153,7 +155,7 @@ while 1:
     filename = '%08i.jpg' % _INDEX
     path = 'images/%s' % filename
     os.system('fswebcam -d %s %s' % (DEVICE, path))
-    for video in glob.glob("video????"):
+    for video in glob.glob("video??????"):
         try:
             os.stat(video + "/done.txt")
             message_video(video)
@@ -164,8 +166,7 @@ while 1:
     setup_video()
     while time.time() < (_time + SLEEP_SECONDS):
         time.sleep(0.5)
-        print("Sleeping 0.5..")
+        #print("Sleeping 0.5..")
     _INDEX += 1
 exit()
-import os, glob, imghdr
 
