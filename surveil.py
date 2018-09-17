@@ -1,6 +1,7 @@
 import os, time, subprocess, sys
 import smtplib, imghdr
 import glob
+import config
 
 from email.message import EmailMessage
 
@@ -112,7 +113,8 @@ def message_video(directory):
             connection = smtplib.SMTP(host)
             connection.send_message(msg)
             connection.close()
-            os.unlink(directory + "/done.txt")
+            #os.unlink(directory + "/done.txt")
+            os.system("rm %s/*" % directory)
             print("Sent email")
             break
         except:
@@ -154,7 +156,7 @@ while 1:
     _time = time.time()
     filename = '%08i.jpg' % _INDEX
     path = 'images/%s' % filename
-    os.system('fswebcam -d %s %s' % (DEVICE, path))
+    os.system('fswebcam --rotate %i -d %s %s' % (config.ROTATE, DEVICE, path))
     for video in glob.glob("video??????"):
         try:
             os.stat(video + "/done.txt")
