@@ -20,10 +20,10 @@ _INDEX = 0
 _INDEX_VIDEO = 0
 
 # (60) is one minute of images, (60 * 10) is 10 minutes
-VIDEO_IMAGES = (60 * 3) / SLEEP_SECONDS
+VIDEO_IMAGES = (60 * config.VIDEO_MINUTES) / SLEEP_SECONDS
 
-# 20 KBs minimum; corrupt images are small
-MINIMUM_IMAGE_SIZE = 1024 * 20 
+# 5 KBs minimum; corrupt images are small
+MINIMUM_IMAGE_SIZE = 1024 * 5
 
 def test_dependencies():
     try:
@@ -156,7 +156,26 @@ while 1:
     _time = time.time()
     filename = '%08i.jpg' % _INDEX
     path = 'images/%s' % filename
-    os.system('fswebcam --rotate %i -d %s %s' % (config.ROTATE, DEVICE, path))
+    while 2:
+        process = subprocess.Popen(['fswebcam', '-S', str(config.SKIP_FRAMES),
+                                '--jpeg', str(95),
+                                '--rotate', str(config.ROTATE), '-d', DEVICE,
+                                '-i', config.INPUT,
+                                path], stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+        #print(process)
+        process.wait()
+        output = process.stderr.read() + process.stdout.read()
+        output = str(output)
+        #print(type(output))
+        #print((output,))
+        if output.lower().find('error') > -1:
+            print("fswebcam reported error: ")
+            print(output)
+            # So we don't spam the system with repeated requests
+            time.sleep(1)
+        else:
+            break
     for video in glob.glob("video??????"):
         try:
             os.stat(video + "/done.txt")
