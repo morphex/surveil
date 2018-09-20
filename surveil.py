@@ -79,16 +79,23 @@ def message(filename):
 			subtype=imghdr.what(None, data))
 
     domain = sys.argv[1].split('@')[-1]
-    for MX in DNS.mxlookup(domain):
-        host = MX[1]
+    while 1:
         try:
-            connection = smtplib.SMTP(host)
-            connection.send_message(msg)
-            connection.close()
-            print("Sent email")
-            break
-        except:
-            pass
+            for MX in DNS.mxlookup(domain):
+                host = MX[1]
+                try:
+                    connection = smtplib.SMTP(host)
+                    connection.send_message(msg)
+                    connection.close()
+                    print("Sent email")
+                    return
+                except:
+                    pass
+                break
+        except Exception:
+            print("Error sending mail: ")
+            print(sys.exc_info())
+            time.sleep(5) # So we don't spam the system
 
 def message_video(directory):
     msg = EmailMessage()
@@ -107,21 +114,24 @@ def message_video(directory):
 			subtype='plain', filename='out.log.txt')
 
     domain = sys.argv[1].split('@')[-1]
-    for MX in DNS.mxlookup(domain):
-        host = MX[1]
+    while 1:
         try:
-            connection = smtplib.SMTP(host)
-            connection.send_message(msg)
-            connection.close()
-            #os.unlink(directory + "/done.txt")
-            os.system("rm %s/*" % directory)
-            print("Sent email")
-            break
-        except:
-            pass
-
-
-
+            for MX in DNS.mxlookup(domain):
+                host = MX[1]
+                try:
+                    connection = smtplib.SMTP(host)
+                    connection.send_message(msg)
+                    connection.close()
+                    os.system("rm %s/*" % directory)
+                    print("Sent email")
+                    return
+                except:
+                    pass
+        except Exception:
+            print("Error sending mail: ")
+            print(sys.exc_info())
+            time.sleep(5) # So we don't spam the system
+            
 def setup_video():
     valid_files = []
     for file in glob.glob('images/*.jpg'):
