@@ -113,6 +113,10 @@ def message_video(directory):
         data = file.read()
     msg.add_attachment(data, maintype='text',
 			subtype='plain', filename='out.log.txt')
+    with open(directory + '/out2.log', 'rb') as file:
+        data = file.read()
+    msg.add_attachment(data, maintype='text',
+			subtype='plain', filename='out2.log.txt')
 
     domain = sys.argv[1].split('@')[-1]
     while 1:
@@ -153,11 +157,16 @@ def setup_video():
         os.chdir(video_dir)
         script = open('run.sh', 'w')
         script.write("#!/bin/bash\n")
-        script.write("ffmpeg -framerate 1 -start_number 1 -i %08d.jpg -c:v libvpx-vp9 out.webm&>out.log\n")
+        script.write("time ffmpeg -framerate 1 -start_number 1 -i %08d.jpg ")
+        script.write("-c:v libvpx-vp9 -deadline %s -cpu-used %i " %
+            (config.DEADLINE, config.ENCODING_SPEED,))
+        script.write(config.TILE_COLUMNS)
+        script.write(config.THREADS)
+        script.write("out.webm&>out.log\n")
         script.write("echo 1 > done.txt\n")
         script.close()
         os.system("chmod +x run.sh")
-        os.system("./run.sh&")
+        os.system("./run.sh&>out2.log&")
         os.chdir(_CWD + '/' + SURVEIL_DIR)
         return True
     else:
@@ -188,6 +197,8 @@ while 1:
                                 '--jpeg', str(95),
                                 '--rotate', str(config.ROTATE), '-d', DEVICE,
                                 '-i', config.INPUT,
+                                '--timestamp', config.STRFTIME,
+                                '-r', config.RESOLUTION,
                                 path], stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
         #print(process)
