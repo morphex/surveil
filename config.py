@@ -36,6 +36,8 @@ STRFTIME = "%Y-%m-%d %H:%M:%S (%Z)"
 #
 # It takes about 1 minute to encode a 2-minute video with 10
 # SLEEP_SECONDS.
+#
+# And ffmpeg takes up about 256 MBs of RAM.
 
 # Resolution of captured images, run command "v4l2-ctl --list-formats-ext|less"
 #
