@@ -8,6 +8,10 @@ from email.message import EmailMessage
 TMPFS_SIZE_MB = 50
 TMPFS_SIZE = 1024 * 1024 * TMPFS_SIZE_MB
 
+# Percentage of temporary storage used, before videos are moved to
+# permanent storage
+TMPFS_THRESHOLD = 75
+
 SURVEIL_DIR = 'surveil'
 
 # Seconds to sleep between each picture taken
@@ -162,6 +166,22 @@ def setup_video():
     else:
         return False
 
+def mailer():
+    while 1:
+        for video in glob.glob("video??????"):
+            try:
+                os.stat(video + "/done.txt")
+                message_video(video)
+                break
+            except FileNotFoundError:
+                pass
+        time.sleep(5) # So we don't spam the system
+
+# Start mailer
+import _thread
+_thread.start_new_thread(mailer, ())
+
+# Main loop
 while 1:
     _time = time.time()
     filename = '%08i.jpg' % _INDEX
@@ -186,13 +206,6 @@ while 1:
             time.sleep(1)
         else:
             break
-    for video in glob.glob("video??????"):
-        try:
-            os.stat(video + "/done.txt")
-            message_video(video)
-            break
-        except FileNotFoundError:
-            pass
     #message(path)
     setup_video()
     while time.time() < (_time + SLEEP_SECONDS):
