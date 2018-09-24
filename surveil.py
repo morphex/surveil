@@ -14,9 +14,6 @@ TMPFS_THRESHOLD = 75
 
 SURVEIL_DIR = 'surveil'
 
-# Seconds to sleep between each picture taken
-SLEEP_SECONDS = 10
-
 DEVICE = '/dev/video0'
 
 _CWD = os.getcwd()
@@ -24,7 +21,7 @@ _INDEX = 0
 _INDEX_VIDEO = 0
 
 # (60) is one minute of images, (60 * 10) is 10 minutes
-VIDEO_IMAGES = (60 * config.VIDEO_MINUTES) / SLEEP_SECONDS
+VIDEO_IMAGES = (60 * config.VIDEO_MINUTES) / config.SLEEP_SECONDS
 
 # 5 KBs minimum; corrupt images are small
 MINIMUM_IMAGE_SIZE = 1024 * 5
@@ -135,7 +132,7 @@ def message_video(directory):
             print("Error sending mail: ")
             print(sys.exc_info())
             time.sleep(5) # So we don't spam the system
-            
+
 def setup_video():
     valid_files = []
     for file in glob.glob('images/*.jpg'):
@@ -208,7 +205,7 @@ while 1:
             break
     #message(path)
     setup_video()
-    while time.time() < (_time + SLEEP_SECONDS):
+    while time.time() < (_time + config.SLEEP_SECONDS):
         time.sleep(0.5)
         #print("Sleeping 0.5..")
     _INDEX += 1

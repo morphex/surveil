@@ -23,3 +23,6 @@ SKIP_FRAMES = 10
 
 # Input selected, fswebcam -i argument
 INPUT = "0"
+
+# Seconds to sleep between each image
+SLEEP_SECONDS = 10
