@@ -86,6 +86,14 @@ def message(filename):
                 host = MX[1]
                 try:
                     connection = smtplib.SMTP(host)
+                    try:
+                        connection.starttls()
+                    except smtplib.SMTPNotSupportedError:
+                        print("starttls not supported for ", MX)
+                    except RuntimeError:
+                        print("SSL/TLS is not available to Python")
+                    except:
+                        pass
                     connection.send_message(msg)
                     connection.close()
                     print("Sent email")
@@ -125,6 +133,14 @@ def message_video(directory):
                 host = MX[1]
                 try:
                     connection = smtplib.SMTP(host)
+                    try:
+                        connection.starttls()
+                    except smtplib.SMTPNotSupportedError:
+                        print("starttls not supported for ", MX)
+                    except RuntimeError:
+                        print("SSL/TLS is not available to Python")
+                    except:
+                        pass
                     connection.send_message(msg)
                     connection.close()
                     os.system("rm %s/*" % directory)
