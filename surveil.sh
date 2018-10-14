@@ -4,7 +4,7 @@
 #
 # For example, enter
 #
-# @reboot /root/surveil/surveil.sh email-address
+# @reboot /root/surveil/surveil.sh email-address smtpserver smtpuser smtppassword
 #
 PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 export PATH
