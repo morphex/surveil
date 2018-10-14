@@ -69,3 +69,12 @@ elif int(RESOLUTION.split("x")[0]) >= 640:
 else:
     TILE_COLUMNS = " "
     THREADS = " "
+
+# Number of hours between each reboot, 0 means never reboot, see also random
+# variable added to REBOOT in paragraph below.
+REBOOT = 24
+
+# Adding a random 5-60 minutes to REBOOT, to make it hard to predict when
+# system will reboot
+import random
+REBOOT += random.uniform(0.08333, 1)

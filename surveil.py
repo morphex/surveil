@@ -2,8 +2,11 @@ import os, time, subprocess, sys
 import smtplib, imghdr
 import glob
 import config
+import traceback
 
 from email.message import EmailMessage
+
+startup_time = time.time()
 
 TMPFS_SIZE_MB = 50
 TMPFS_SIZE = 1024 * 1024 * TMPFS_SIZE_MB
@@ -52,11 +55,56 @@ def test_dependencies():
 
 test_dependencies()
 
-if len(sys.argv) != 2:
-    print("Run as: ./%s %s" % (sys.argv[0], 'email@example.com'))
+smtp_host = ""
+smtp_user = ""
+smtp_password = ""
+
+if len(sys.argv) != 5:
+    print("Run as: ./%s %s %s %s %s" % (sys.argv[0], 'email@example.com', 'smtp.outgoing.example.com', 'smtp user' 'smtp password'))
     sys.exit(1)
 
+smtp_host = sys.argv[2]
+smtp_user = sys.argv[3]
+smtp_password = sys.argv[4]
+
+def message_subject(subject="Surveillance video, surveil started"):
+    msg = EmailMessage()
+    msg['Subject'] = 'Surveillance video, surveil started'
+    msg['From'] = sys.argv[3]
+    msg['To'] = sys.argv[1]
+
+    domain = sys.argv[1].split('@')[-1]
+    while 1:
+        try:
+            for MX in (('', smtp_host,),): # DNS.mxlookup(domain):
+                host = MX[1]
+                try:
+                    connection = smtplib.SMTP()
+                    connection.connect(host)
+                    try:
+                        connection.starttls()
+                    except smtplib.SMTPNotSupportedError:
+                        print("starttls not supported for ", MX)
+                    except RuntimeError:
+                        print("SSL/TLS is not available to Python")
+                    except:
+                        traceback.print_exc()
+                    connection.login(smtp_user, smtp_password)
+                    connection.send_message(msg)
+                    connection.close()
+                    print("Sent email")
+                    return
+                except:
+                    traceback.print_exc()
+                    time.sleep(15)
+        except Exception:
+            print("Error sending mail: ")
+            print(sys.exc_info())
+            time.sleep(15) # So we don't spam the system
+    print('message sent')
+
 def start():
+    message_subject(subject="Surveillance video, surveil started")
     os.system('mount -t tmpfs -o size=%s  none %s/surveil' % 
 		(TMPFS_SIZE, _CWD))
     os.mkdir('%s/%s/images' % (_CWD, SURVEIL_DIR))
@@ -66,45 +114,6 @@ def exit():
     os.system('umount --force %s/%s' % (_CWD,SURVEIL_DIR))
 
 start()
-
-def message(filename):
-    msg = EmailMessage()
-    msg['Subject'] = 'Surveillance photos'
-    msg['From'] = sys.argv[1]
-    msg['To'] = sys.argv[1]
-    msg.preamble = 'Surveillance photo attached'
-
-    with open(filename, 'rb') as file:
-        data = file.read()
-    msg.add_attachment(data, maintype='image',
-			subtype=imghdr.what(None, data))
-
-    domain = sys.argv[1].split('@')[-1]
-    while 1:
-        try:
-            for MX in DNS.mxlookup(domain):
-                host = MX[1]
-                try:
-                    connection = smtplib.SMTP(host)
-                    try:
-                        connection.starttls()
-                    except smtplib.SMTPNotSupportedError:
-                        print("starttls not supported for ", MX)
-                    except RuntimeError:
-                        print("SSL/TLS is not available to Python")
-                    except:
-                        pass
-                    connection.send_message(msg)
-                    connection.close()
-                    print("Sent email")
-                    return
-                except:
-                    pass
-                break
-        except Exception:
-            print("Error sending mail: ")
-            print(sys.exc_info())
-            time.sleep(5) # So we don't spam the system
 
 def message_video(directory):
     msg = EmailMessage()
@@ -127,12 +136,14 @@ def message_video(directory):
 			subtype='plain', filename='out2.log.txt')
 
     domain = sys.argv[1].split('@')[-1]
+
     while 1:
         try:
-            for MX in DNS.mxlookup(domain):
+            for MX in (('', smtp_host,),): # DNS.mxlookup(domain):
                 host = MX[1]
                 try:
-                    connection = smtplib.SMTP(host)
+                    connection = smtplib.SMTP()
+                    connection.connect(host)
                     try:
                         connection.starttls()
                     except smtplib.SMTPNotSupportedError:
@@ -140,18 +151,21 @@ def message_video(directory):
                     except RuntimeError:
                         print("SSL/TLS is not available to Python")
                     except:
-                        pass
+                        traceback.print_exc()
+                    connection.login(smtp_user, smtp_password)
                     connection.send_message(msg)
                     connection.close()
                     os.system("rm %s/*" % directory)
                     print("Sent email")
                     return
                 except:
-                    pass
+                    traceback.print_exc()
+                    time.sleep(15)
         except Exception:
             print("Error sending mail: ")
             print(sys.exc_info())
-            time.sleep(5) # So we don't spam the system
+            time.sleep(15) # So we don't spam the system
+    print('message sent')
 
 def setup_video():
     valid_files = []
@@ -197,6 +211,10 @@ def mailer():
                 break
             except FileNotFoundError:
                 pass
+        if config.REBOOT:
+            if ((config.REBOOT * 60 * 60) + startup_time) < time.time():
+                # FIXME, make sure no mail is unsent
+                os.system("/sbin/reboot")
         time.sleep(5) # So we don't spam the system
 
 # Start mailer
