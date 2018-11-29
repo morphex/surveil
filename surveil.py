@@ -61,9 +61,14 @@ smtp_password = ""
 
 if len(sys.argv) != 5:
     print("Run as: ./%s %s %s %s %s" % (sys.argv[0], 'email@example.com', 'smtp.outgoing.example.com', 'smtp user' 'smtp password'))
+    print("Use smtp.outgoing.example.com:587 for SMTP port 587, default is 25")
     sys.exit(1)
 
-smtp_host = sys.argv[2]
+try:
+    smtp_host, smtp_port = sys.argv[2].split(':')
+except IndexError:
+    smtp_host = sys.argv[2]
+    smtp_port = 25
 smtp_user = sys.argv[3]
 smtp_password = sys.argv[4]
 
@@ -80,7 +85,7 @@ def message_subject(subject="Surveillance video, surveil started"):
                 host = MX[1]
                 try:
                     connection = smtplib.SMTP()
-                    connection.connect(host)
+                    connection.connect(host, port=smtp_port)
                     try:
                         connection.starttls()
                     except smtplib.SMTPNotSupportedError:
@@ -143,7 +148,7 @@ def message_video(directory):
                 host = MX[1]
                 try:
                     connection = smtplib.SMTP()
-                    connection.connect(host)
+                    connection.connect(host, port=smtp_port)
                     try:
                         connection.starttls()
                     except smtplib.SMTPNotSupportedError:
