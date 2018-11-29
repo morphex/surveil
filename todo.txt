@@ -1,0 +1,5 @@
+Add support for selecting port on SMTP server (Mobile internet providers may
+block port 25).
+
+Add support for moving files to longer-time storage when space is low.
+
