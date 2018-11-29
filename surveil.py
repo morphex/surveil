@@ -66,7 +66,7 @@ if len(sys.argv) != 5:
 
 try:
     smtp_host, smtp_port = sys.argv[2].split(':')
-except IndexError:
+except ValueError:
     smtp_host = sys.argv[2]
     smtp_port = 25
 smtp_user = sys.argv[3]
