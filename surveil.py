@@ -5,6 +5,7 @@ import config
 import traceback
 
 from email.message import EmailMessage
+import email.utils
 
 startup_time = time.time()
 
@@ -77,6 +78,7 @@ def message_subject(subject="Surveillance video, surveil started"):
     msg['Subject'] = 'Surveillance video, surveil started'
     msg['From'] = sys.argv[3]
     msg['To'] = sys.argv[1]
+    msg['Date'] = email.utils.formatdate(time.time())
 
     domain = sys.argv[1].split('@')[-1]
     while 1:
@@ -126,11 +128,16 @@ def message_video(directory):
     msg['From'] = sys.argv[1]
     msg['To'] = sys.argv[1]
     msg.preamble = 'Surveillance video attached'
+    msg['Date'] = email.utils.formatdate(time.time())
 
     with open(directory + '/out.webm', 'rb') as file:
         data = file.read()
     msg.add_attachment(data, maintype='video',
 			subtype='webm', filename='out.webm')
+    with open(directory + '/info.txt', 'rb') as file:
+        data = file.read()
+    msg.add_attachment(data, maintype='text',
+			subtype='plain', filename='info.txt')
     with open(directory + '/out.log', 'rb') as file:
         data = file.read()
     msg.add_attachment(data, maintype='text',
@@ -198,6 +205,9 @@ def setup_video():
         script.write(config.TILE_COLUMNS)
         script.write(config.THREADS)
         script.write("out.webm&>out.log\n")
+        script.write("echo `date` > info.txt\n")
+        script.write("echo %s >> info.txt\n" % startup_time)
+        script.write("echo `uptime` >> info.txt\n")
         script.write("echo 1 > done.txt\n")
         script.close()
         os.system("chmod +x run.sh")
