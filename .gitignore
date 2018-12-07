@@ -1,0 +1,3 @@
+# Ignoring directories where sensitive data can be stored
+surveil
+longterm

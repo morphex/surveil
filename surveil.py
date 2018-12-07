@@ -18,8 +18,6 @@ TMPFS_THRESHOLD = 75
 
 SURVEIL_DIR = 'surveil'
 
-DEVICE = '/dev/video0'
-
 _CWD = os.getcwd()
 _INDEX = 0
 _INDEX_VIDEO = 0
@@ -61,7 +59,7 @@ smtp_user = ""
 smtp_password = ""
 
 if len(sys.argv) != 5:
-    print("Run as: ./%s %s %s %s %s" % (sys.argv[0], 'email@example.com', 'smtp.outgoing.example.com', 'smtp user' 'smtp password'))
+    print("Run as: ./%s %s %s %s %s" % (sys.argv[0], 'email@example.com', 'smtp.outgoing.example.com', 'smtp user', 'smtp password'))
     print("Use smtp.outgoing.example.com:587 for SMTP port 587, default is 25")
     sys.exit(1)
 
@@ -111,6 +109,14 @@ def message_subject(subject="Surveillance video, surveil started"):
     print('message sent')
 
 def start():
+    try:
+        os.mkdir("%s/%s" % (_CWD, SURVEIL_DIR))
+    except FileExistsError:
+        pass
+    try:
+        os.mkdir("%s/longterm" % _CWD)
+    except FileExistsError:
+        pass
     message_subject(subject="Surveillance video, surveil started")
     os.system('mount -t tmpfs -o size=%s  none %s/surveil' % 
 		(TMPFS_SIZE, _CWD))
@@ -244,7 +250,8 @@ while 1:
     while 2:
         process = subprocess.Popen(['fswebcam', '-S', str(config.SKIP_FRAMES),
                                 '--jpeg', str(95),
-                                '--rotate', str(config.ROTATE), '-d', DEVICE,
+                                '--rotate', str(config.ROTATE),
+				'-d', config.DEVICE,
                                 '-i', config.INPUT,
                                 '--timestamp', config.STRFTIME,
                                 '-r', config.RESOLUTION,

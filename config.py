@@ -78,3 +78,7 @@ REBOOT = 24
 # system will reboot
 import random
 REBOOT += random.uniform(0.08333, 1)
+
+# Video device images are taken from
+DEVICE = '/dev/video0'
+
