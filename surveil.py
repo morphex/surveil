@@ -112,14 +112,19 @@ def start():
     try:
         os.mkdir("%s/%s" % (_CWD, SURVEIL_DIR))
     except FileExistsError:
-        pass
+        os.rename("%s/%s" % (_CWD, SURVEIL_DIR),
+                  "%s/%s.%s" % (_CWD, SURVEIL_DIR, str(startup_time)))
+        os.mkdir("%s/%s" % (_CWD, SURVEIL_DIR))
     try:
         os.mkdir("%s/longterm" % _CWD)
     except FileExistsError:
-        pass
+        os.rename("%s/longterm" % _CWD,
+                  "%s/longterm.%s" % (_CWD, str(startup_time)))
+        os.mkdir("%s/longterm" % _CWD)
     message_subject(subject="Surveillance video, surveil started")
-    os.system('mount -t tmpfs -o size=%s  none %s/surveil' % 
-		(TMPFS_SIZE, _CWD))
+    if not config.DISABLE_TEMPORARY_STORAGE:
+        os.system('mount -t tmpfs -o size=%s  none %s/surveil' % 
+            (TMPFS_SIZE, _CWD))
     os.mkdir('%s/%s/images' % (_CWD, SURVEIL_DIR))
     os.chdir('%s/%s' % (_CWD, SURVEIL_DIR))
 
@@ -225,7 +230,8 @@ def setup_video():
 
 def mailer():
     while 1:
-        for video in glob.glob("video??????"):
+        for video in glob.glob("video??????") +\
+          glob.glob("../surveil.??????????.???????/video??????"):
             try:
                 os.stat(video + "/done.txt")
                 message_video(video)

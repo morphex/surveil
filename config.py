@@ -82,3 +82,7 @@ REBOOT += random.uniform(0.08333, 1)
 # Video device images are taken from
 DEVICE = '/dev/video0'
 
+# Disables temporary fs storage, keeps images or videos in the case of
+# a network interruption and later power loss
+DISABLE_TEMPORARY_STORAGE = True
+
