@@ -135,7 +135,7 @@ start()
 
 def message_video(directory):
     msg = EmailMessage()
-    msg['Subject'] = 'Surveillance video'
+    msg['Subject'] = config.SUBJECT
     msg['From'] = sys.argv[1]
     msg['To'] = sys.argv[1]
     msg.preamble = 'Surveillance video attached'

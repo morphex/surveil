@@ -1,3 +1,6 @@
 # Ignoring directories where sensitive data can be stored
 surveil
 longterm
+config_overrides.py
+__pycache__
+

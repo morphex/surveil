@@ -86,3 +86,9 @@ DEVICE = '/dev/video0'
 # a network interruption and later power loss
 DISABLE_TEMPORARY_STORAGE = True
 
+SUBJECT = "Surveillance video"
+
+try:
+    from config_overrides import *
+except ImportError:
+    pass
