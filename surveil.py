@@ -7,6 +7,8 @@ import traceback
 from email.message import EmailMessage
 import email.utils
 
+import _thread
+
 startup_time = time.time()
 
 TMPFS_SIZE_MB = 50
@@ -71,7 +73,11 @@ except ValueError:
 smtp_user = sys.argv[3]
 smtp_password = sys.argv[4]
 
-def message_subject(subject="Surveillance video, surveil started"):
+def message_subject(*a, **k):
+    # So that startup isn't hindered by network issues
+    _thread.start_new_thread(_message_subject, a, k)
+
+def _message_subject(subject="Surveillance video, surveil started"):
     msg = EmailMessage()
     msg['Subject'] = 'Surveillance video, surveil started'
     msg['From'] = sys.argv[3]
@@ -245,7 +251,6 @@ def mailer():
         time.sleep(5) # So we don't spam the system
 
 # Start mailer
-import _thread
 _thread.start_new_thread(mailer, ())
 
 # Main loop
