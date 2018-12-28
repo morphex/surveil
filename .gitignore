@@ -1,6 +1,10 @@
 # Ignoring directories where sensitive data can be stored
 surveil
 longterm
+surveil.*.*
+longterm.*.*
+# Ignoring custom config
 config_overrides.py
+# Misc
 __pycache__
 
