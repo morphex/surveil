@@ -72,7 +72,7 @@ else:
 
 # Number of hours between each reboot, 0 means never reboot, see also random
 # variable added to REBOOT in paragraph below.
-REBOOT = 24
+REBOOT = 24 * 7 * 52
 
 # Adding a random 5-60 minutes to REBOOT, to make it hard to predict when
 # system will reboot
@@ -86,7 +86,10 @@ DEVICE = '/dev/video0'
 # a network interruption and later power loss
 DISABLE_TEMPORARY_STORAGE = True
 
-SUBJECT = "Surveillance video"
+SUBJECT = "Surveillance video, cabin"
+
+# Whether or not to mail video
+SEND_VIDEO = False
 
 try:
     from config_overrides import *
