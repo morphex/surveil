@@ -86,10 +86,13 @@ DEVICE = '/dev/video0'
 # a network interruption and later power loss
 DISABLE_TEMPORARY_STORAGE = True
 
-SUBJECT = "Surveillance video, cabin"
+SUBJECT = "Surveillance video, test run"
 
 # Whether or not to mail video
 SEND_VIDEO = False
+
+# Whether or not to send a daily report of videos created
+SEND_DAILY_REPORT = True
 
 try:
     from config_overrides import *
