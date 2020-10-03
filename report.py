@@ -10,9 +10,8 @@ process.wait()
 directories = process.stdout.readlines()
 done = 0
 for directory in directories:
-  directory_ = directory.decode().strip() + '/done.txt'
-  print(directory_)
-  if os.path.isfile(directory_):
+  done_file = directory.decode().strip() + '/done.txt'
+  if os.path.isfile(done_file):
     done += 1
 
 print("%i videos started, %i done" % (len(directories), done))
